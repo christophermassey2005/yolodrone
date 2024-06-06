@@ -4,6 +4,29 @@ from Xlib import display, X
 from ultralytics import YOLO 
 import supervision as sv
 
+import ollama
+"""
+modelfile = '''
+FROM llama3
+SYSTEM Either reply yes or no. It does not matter if it makes sense or not. Do not reply with anything else.
+'''
+
+ollama.create(model='dronepilot', modelfile=modelfile)
+
+messages = [
+    {
+        'role': 'user',
+        'content': 'Person detected',
+    },
+]
+
+print("Response:")
+for chunk in ollama.chat(model='dronepilot', messages=messages, stream=True):
+    print(chunk['message']['content'], end='', flush=True)
+print()
+
+"""
+
 ZONE_POLYGON = np.array([
     [0, 0],
     [1280, 0],
@@ -66,6 +89,10 @@ while True:
             class_id = detections.class_id[i]
             labels.append(f"{model.model.names[class_id]} {confidence:0.2f}")
             detected_object_names.append(model.model.names[class_id])
+            
+            # Print bounding box coordinates
+            x1, y1, x2, y2 = box.tolist()
+            print(f"Bounding box coordinates for {model.model.names[class_id]}: (x1={x1}, y1={y1}), (x2={x2}, y2={y2})")
         
         print("Detected objects:", detected_object_names)
 
