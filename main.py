@@ -28,11 +28,12 @@ print()
 """
 
 ZONE_POLYGON = np.array([
-    [0, 0],
-    [1280, 0],
-    [1250, 720],
-    [0, 720]
+    [208, 0],
+    [775, 0],
+    [775, 442],
+    [208, 442]
 ])
+
 
 def get_window_by_name(window_name):
     d = display.Display()
@@ -71,6 +72,8 @@ zone_annotator = sv.PolygonZoneAnnotator(zone=zone, color=sv.Color.RED)
 # Specify the window name to capture
 window_name = "CPH2207"
 
+# ... (previous code remains the same)
+
 while True:
     # Capture the window
     image = capture_window(window_name)
@@ -83,6 +86,7 @@ while True:
 
         labels = []
         detected_object_names = []
+        objects_in_zone = []
         for i in range(len(detections.xyxy)):
             box = detections.xyxy[i]
             confidence = detections.confidence[i]
@@ -93,8 +97,13 @@ while True:
             # Print bounding box coordinates
             x1, y1, x2, y2 = box.tolist()
             print(f"Bounding box coordinates for {model.model.names[class_id]}: (x1={x1}, y1={y1}), (x2={x2}, y2={y2})")
+            
+            # Check if the bounding box intersects with the zone polygon
+            if zone.trigger(detections=sv.Detections(xyxy=box.reshape(1, 4), confidence=np.array([confidence]), class_id=np.array([class_id]))):
+                objects_in_zone.append(model.model.names[class_id])
         
         print("Detected objects:", detected_object_names)
+        print("Objects in the zone:", objects_in_zone)
 
         frame = bounding_box_annotator.annotate(scene=image, detections=detections)
         frame = label_annotator.annotate(scene=frame, detections=detections, labels=labels)
