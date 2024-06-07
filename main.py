@@ -72,8 +72,6 @@ zone_annotator = sv.PolygonZoneAnnotator(zone=zone, color=sv.Color.RED)
 # Specify the window name to capture
 window_name = "CPH2207"
 
-# ... (previous code remains the same)
-
 while True:
     # Capture the window
     image = capture_window(window_name)
